@@ -34,15 +34,51 @@ La API estará disponible en: `http://127.0.0.1:8000`
 
 Documentación interactiva: `http://127.0.0.1:8000/docs`
 
+> Al iniciar, se crea automáticamente el usuario por defecto si no existe en la base de datos.
+
+## Autenticación
+
+Todos los endpoints de mensajes están protegidos con JWT. Para usarlos:
+
+**1. Obtener el token**
+
+```http
+POST /auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=user&password=123456
+```
+
+Respuesta:
+```json
+{
+  "access_token": "<token>",
+  "token_type": "bearer"
+}
+```
+
+**2. Usar el token en cada petición**
+
+Agrega el token en el header de autorización:
+```
+Authorization: Bearer <token>
+```
+
+**En Swagger UI (`/docs`):**
+1. Haz clic en el botón **Authorize 🔒**
+2. Ingresa `user` y `123456`
+3. Clic en **Authorize** — todos los endpoints quedan desbloqueados
+
 ## Endpoints
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/messages/` | Enviar un mensaje |
-| GET | `/api/messages/{session_id}` | Obtener mensajes de una sesión |
-| WS | `/ws` | Canal WebSocket en tiempo real |
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/auth/login` | ❌ | Obtener token de acceso |
+| POST | `/api/messages/` | ✅ | Enviar un mensaje |
+| GET | `/api/messages/{session_id}` | ✅ | Obtener mensajes de una sesión |
+| WS | `/ws` | ❌ | Canal WebSocket en tiempo real |
 
-### Ejemplo POST
+### Ejemplo POST /api/messages/
 
 ```json
 {
@@ -52,7 +88,7 @@ Documentación interactiva: `http://127.0.0.1:8000/docs`
 }
 ```
 
-### Parámetros GET
+### Parámetros GET /api/messages/{session_id}
 
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
@@ -69,3 +105,4 @@ python verification_script.py
 # Prueba del WebSocket (requiere servidor corriendo)
 python test_websocket.py
 ```
+

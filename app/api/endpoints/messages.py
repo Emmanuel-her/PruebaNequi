@@ -4,6 +4,8 @@ from typing import List, Optional
 from app.core.database import get_db
 from app.schemas.message import MessageCreate, MessageResponse
 from app.services.message_service import MessageService
+from app.services.auth_service import get_usuario_actual
+from app.models.usuario import Usuario
 
 router = APIRouter()
 
@@ -13,7 +15,8 @@ def get_message_service(db: Session = Depends(get_db)) -> MessageService:
 @router.post("/", response_model=MessageResponse, status_code=201)
 def Crear_mensaje(
     message_in: MessageCreate,
-    service: MessageService = Depends(get_message_service)
+    service: MessageService = Depends(get_message_service),
+    usuario_actual: Usuario = Depends(get_usuario_actual)
 ):
     try:
         return service.process_message(message_in)
@@ -26,7 +29,8 @@ def Obtener_mensajes(
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
     sender: Optional[str] = None,
-    service: MessageService = Depends(get_message_service)
+    service: MessageService = Depends(get_message_service),
+    usuario_actual: Usuario = Depends(get_usuario_actual)
 ):
     messages = service.get_messages(session_id, limit, offset, sender)
     if not messages:
